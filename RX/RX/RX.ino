@@ -6,6 +6,9 @@
 
 #include "Pinout.h"
 
+#include <TM1637Display.h>
+#include <Servo.h>
+
 void initialize ()
     { 
     // inits the uC
@@ -46,4 +49,67 @@ void initialize ()
 int main ()
     { 
     initialize ();
+
+    TM1637Display disp (DISPLAY_SCL, DISPLAY_SDA);
+    disp.setBrightness (7);
+    
+    Servo VESC;
+    VESC.attach (PPM);
+    VESC.writeMicroseconds (1500);
+    unsigned long last_avail = millis ();
+    byte last_reading = 127;
+    const int FAILSAFE_RAMP_UP = 2000;
+    const int FAILSAFE_MS      = 500;
+
+
+    Serial.begin (9600);
+    unsigned long last_send = millis ();
+    byte testCommByte = 0;
+
+    for (int i = 0; i < 6; i++)
+        { 
+        digitalWrite (BUZZER, HIGH);
+        delay (100);
+        digitalWrite (BUZZER, LOW);
+        delay (200);
+        }
+
+    // Main cycle
+    while (true)
+        {
+        if (Serial.available ())
+            {
+            byte reading = Serial.read ();
+            last_reading = reading;
+
+            VESC.writeMicroseconds (map (255 - reading, 0, 255, 1000, 2000));
+
+            last_avail = millis ();
+            }
+        else if (millis () - last_avail > FAILSAFE_MS)
+            {
+            int delta = (millis () - last_avail) - FAILSAFE_MS;
+
+            if (delta < FAILSAFE_RAMP_UP)
+                {
+                float k = float (delta) / float (FAILSAFE_RAMP_UP);
+
+                int toVESC = k * 1000 +
+                    (1.f - k) * (map (last_reading, 0, 255, 1000, 2000));
+
+                VESC.writeMicroseconds (toVESC);
+                }
+            else
+                VESC.writeMicroseconds (1000);
+            }
+
+        // Sends limited amount of packets per minute
+        if (millis () - last_send > 50)
+            {
+            Serial.print (char ((testCommByte++)%256));
+            
+            last_send += 50;
+            }
+
+        }
     }
