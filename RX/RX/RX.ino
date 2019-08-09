@@ -61,11 +61,9 @@ int main ()
     const int FAILSAFE_RAMP_UP = 2000;
     const int FAILSAFE_MS      = 500;
 
-
     Serial.begin (9600);
-    unsigned long last_send = millis ();
-    byte testCommByte = 0;
-
+    
+    // Beeps 6 times at startup
     for (int i = 0; i < 6; i++)
         { 
         digitalWrite (BUZZER, HIGH);
@@ -77,16 +75,21 @@ int main ()
     // Main cycle
     while (true)
         {
-        if (Serial.available ())
+        // Waits for packets from TX
+        while (Serial.available ())
             {
             byte reading = Serial.read ();
-            last_reading = reading;
 
             VESC.writeMicroseconds (map (255 - reading, 0, 255, 1000, 2000));
-
+            last_reading = reading;
+            
             last_avail = millis ();
             }
-        else if (millis () - last_avail > FAILSAFE_MS)
+        
+        // Failsafe handler 
+        // Also beeps for FAILSAFE_RAMP_UP ms when diconnects
+        // TODO: move to a func.
+        if (millis () - last_avail > FAILSAFE_MS)
             {
             int delta = (millis () - last_avail) - FAILSAFE_MS;
 
@@ -98,18 +101,26 @@ int main ()
                     (1.f - k) * (map (last_reading, 0, 255, 1000, 2000));
 
                 VESC.writeMicroseconds (toVESC);
+
+                digitalWrite (BUZZER, HIGH);
                 }
             else
+                {
                 VESC.writeMicroseconds (1000);
-            }
 
-        // Sends limited amount of packets per minute
-        if (millis () - last_send > 50)
-            {
-            Serial.print (char ((testCommByte++)%256));
+                digitalWrite (BUZZER, LOW);
+                }
             
-            last_send += 50;
             }
+        else
+            digitalWrite (BUZZER, LOW);
 
+        // Currently unused
+        /*
+        if (millis () - last_send > 50)
+            { 
+            Serial.print (char ((testCommByte++) % 256));
+            last_send = millis ();
+            }*/
         }
     }
