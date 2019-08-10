@@ -53,6 +53,8 @@ int main ()
     TM1637Display disp (DISPLAY_SCL, DISPLAY_SDA);
     disp.setBrightness (7);
     
+    
+
     Servo VESC;
     VESC.attach (PPM);
     VESC.writeMicroseconds (1500);
@@ -91,7 +93,7 @@ int main ()
         // TODO: move to a func.
         if (millis () - last_avail > FAILSAFE_MS)
             {
-            int delta = (millis () - last_avail) - FAILSAFE_MS;
+            unsigned long delta = (millis () - last_avail) - FAILSAFE_MS;
 
             if (delta < FAILSAFE_RAMP_UP)
                 {
