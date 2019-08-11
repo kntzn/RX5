@@ -6,7 +6,9 @@
 
 #include "Pinout.h"
 
+
 #include <TM1637Display.h>
+#include "Battery.h"
 #include <Servo.h>
 
 void initialize ()
@@ -53,6 +55,9 @@ int main ()
     TM1637Display disp (DISPLAY_SCL, DISPLAY_SDA);
     disp.setBrightness (7);
     
+    Battery battety;
+    battety.batMeasure (V_BAT);
+    unsigned long last_bat_upd = millis ();
     
 
     Servo VESC;
@@ -77,6 +82,12 @@ int main ()
     // Main cycle
     while (true)
         {
+        if (millis () - last_bat_upd > 500)
+            { 
+            battety.batMeasure (V_BAT);
+            disp.showNumberDec (int (battety.getBatVoltage () * 100.0));
+            last_bat_upd += 500;
+            }
         // Waits for packets from TX
         while (Serial.available ())
             {
