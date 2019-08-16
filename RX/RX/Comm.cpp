@@ -1,5 +1,6 @@
 #include "Comm.h"
 #include "cobs.h"
+#include "Pinout.h"
 
 void Communication::sendPacket (uint8_t* pack, size_t len)
     {
@@ -21,36 +22,46 @@ size_t Communication::receivePacket (uint8_t * pack)
     while (Serial.available ())
         {
         inputBuf.push_back (Serial.read ());
+        
         }
 
     // Searches for the EOP symb.
     int eop = -1;
     for (int i = 0; i < inputBuf.size (); i++)
         if (inputBuf [i] == EOP)
+            {
             eop = i;
+            break;
+            }
 
     // Decodes the message if it is avail.
     size_t cobsDecodedPackLen = 0;
     if (eop != -1)
+        {
         cobsDecodedPackLen =
             COBS::decode (inputBuf.data (), eop, pack);
+        }
     
     // Removes the message from the buffer
     if (eop != -1)
         {
+
         size_t initial_size = inputBuf.size ();
 
-        for (size_t i = 0; i < initial_size - eop - 1; i++)
+        uint8_t* data = inputBuf.data ();
+
+        for (int i = 0; i < initial_size - eop - 1; i++)
             { 
-            *(inputBuf.data () + i) = *(inputBuf.data () + i + eop + 1);    
+            data [i] = data [i + eop + 1];    
             
             }
 
         for (int i = 0; i < eop + 1; i++)
             inputBuf.pop_back ();
+
         }
 
-    return 0;
+    return cobsDecodedPackLen;
     }
 
 Communication::Communication ()

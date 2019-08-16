@@ -45,7 +45,8 @@ template<typename T, size_t len>
 inline bool sarray<T, len>::push_back (T elem)
     {
     // array is full
-    assert (count < len);
+    if (!(count < len))
+        return false;
 
     container [count++] = elem;
 
@@ -64,8 +65,6 @@ template<typename T, size_t len>
 inline T & sarray<T, len>::operator[] (const size_t idx) 
     {
     /*index out of range*/
-    //if (!(0 <= idx && idx < count))
-        //std::cout << idx << "/" << count << std::endl;
     assert (0 <= idx && idx < count);
 
     return container [idx];

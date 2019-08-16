@@ -88,14 +88,16 @@ int main ()
     // Main cycle
     while (true)
         {
-
-        if (HC12.receivePacket (test_buf))
+        size_t inp_sz = HC12.receivePacket (test_buf);
+        if (inp_sz)
             { 
-            if (test_buf [0] == 0x02 &&
-                test_buf [1] == 0x04 &&
-                test_buf [2] == 0x08 &&
-                test_buf [3] == 0x16)
-                digitalWrite (BUZZER, HIGH);
+            for (int i = 0; i < inp_sz; i++)
+                {
+                Serial.print (int (test_buf [i]));
+                Serial.print (' ');
+                }
+            Serial.println ();
+
             }
 
 

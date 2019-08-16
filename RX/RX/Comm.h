@@ -19,7 +19,7 @@
 #include "sarray.h"
 #include <assert.h>
 
-#define PACK_SIZE_MAX 16
+#define PACK_SIZE_MAX 64
 #define EOP 0x00
 
 class Communication
