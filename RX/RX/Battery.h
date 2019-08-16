@@ -32,7 +32,7 @@ class Battery
             {
             int avr_inp = aver_analog (pin, 10U);
             
-            bat_voltage = (readVcc ()*avr_inp / 1023 / 1000.0 + 0.5) * 0.06 +
+            bat_voltage = (readVcc ()*avr_inp / 1023 / 1000.02) * 0.06 +
                           bat_voltage * (1.0 - 0.06);
 
             

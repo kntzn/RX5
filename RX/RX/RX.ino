@@ -85,7 +85,7 @@ int main ()
         if (millis () - last_bat_upd > 500)
             { 
             battety.batMeasure (V_BAT);
-            disp.showNumberDec (int (battety.getBatVoltage () * 100.0));
+            disp.showNumberDec (int (battety.getBatVoltage () * 10.0) * 10);
             last_bat_upd += 500;
             }
         // Waits for packets from TX
