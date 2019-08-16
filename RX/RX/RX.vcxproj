@@ -87,12 +87,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Battery.h" />
+    <ClInclude Include="cobs.h" />
+    <ClInclude Include="Comm.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Pinout.h" />
     <ClInclude Include="__vm\.RX.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Battery.cpp" />
+    <ClCompile Include="Comm.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

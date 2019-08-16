@@ -4,6 +4,7 @@
  Author:	kntzn
 */
 
+#include "Comm.h"
 #include "Pinout.h"
 
 
