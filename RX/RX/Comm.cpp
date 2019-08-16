@@ -1,4 +1,5 @@
 #include "Comm.h"
+#include "cobs.h"
 
 void Communication::sendPacket (uint8_t* pack, size_t len)
     {
@@ -11,13 +12,45 @@ void Communication::sendPacket (uint8_t* pack, size_t len)
     // Actual packet
     Serial.write (cobsEncodedPack, cobsEncodedPackLen);
     // EOP byte
-    Serial.write (0x00);
+    Serial.write (EOP);
     }
 
 size_t Communication::receivePacket (uint8_t * pack)
     {
+    // Reads the serial
+    while (Serial.available ())
+        {
+        inputBuf.push_back (Serial.read ());
+        }
+
+    // Searches for the EOP symb.
+    int eop = -1;
+    for (int i = 0; i < inputBuf.size (); i++)
+        if (inputBuf [i] == EOP)
+            eop = i;
+
+    // Decodes the message if it is avail.
+    size_t cobsDecodedPackLen = 0;
+    if (eop != -1)
+        cobsDecodedPackLen =
+            COBS::decode (inputBuf.data (), eop, pack);
     
-    return size_t ();
+    // Removes the message from the buffer
+    if (eop != -1)
+        {
+        size_t initial_size = inputBuf.size ();
+
+        for (size_t i = 0; i < initial_size - eop - 1; i++)
+            { 
+            *(inputBuf.data () + i) = *(inputBuf.data () + i + eop + 1);    
+            
+            }
+
+        for (int i = 0; i < eop + 1; i++)
+            inputBuf.pop_back ();
+        }
+
+    return 0;
     }
 
 Communication::Communication ()

@@ -80,15 +80,35 @@ int main ()
         delay (200);
         }
 
+    Communication HC12;
+    uint8_t test_buf [PACK_SIZE_MAX + 1] = { };
+
+    
+
     // Main cycle
     while (true)
         {
+
+        if (HC12.receivePacket (test_buf))
+            { 
+            if (test_buf [0] == 0x02 &&
+                test_buf [1] == 0x04 &&
+                test_buf [2] == 0x08 &&
+                test_buf [3] == 0x16)
+                digitalWrite (BUZZER, HIGH);
+            }
+
+
         if (millis () - last_bat_upd > 500)
             { 
             battety.batMeasure (V_BAT);
             disp.showNumberDec (int (battety.getBatVoltage () * 10.0) * 10);
             last_bat_upd += 500;
             }
+
+        // Comm v.1
+        /*
+
         // Waits for packets from TX
         while (Serial.available ())
             {
@@ -128,6 +148,7 @@ int main ()
             }
         else
             digitalWrite (BUZZER, LOW);
+*/
 
         // Currently unused
         /*

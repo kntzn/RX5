@@ -36,6 +36,9 @@
     <ClInclude Include="Comm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Sarray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Battery.cpp">
