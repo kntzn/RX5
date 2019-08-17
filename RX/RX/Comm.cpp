@@ -58,11 +58,57 @@ size_t Communication::receivePacket (uint8_t * pack)
     return cobsDecodedPackLen;
     }
 
+Communication::Communication ()
+    {
+    }
+
+void Communication::sendCommand (command cmd, uint16_t arg)
+    {
+    buffer [0] = static_cast <char> (cmd);
+    buffer [1] = arg / 256;
+    buffer [2] = arg % 256;
+
+    sendPacket (buffer, PACK_SIZE_DEFAULT);
+    }
+
+void Communication::sendRequest (command req)
+    {
+    buffer [0] = static_cast <char> (req);
+    
+    sendPacket (buffer, PACK_SIZE_DEFAULT);
+    }
+
+void Communication::sendResponse (response resp, uint16_t val)
+    {
+    buffer [0] = static_cast <char> (resp);
+    buffer [1] = val / 256;
+    buffer [2] = val % 256;
+
+    for (int i = 0; i < RESPONSE_PACKETS; i++)
+        sendPacket (buffer, PACK_SIZE_DEFAULT);
+    }
+
+Communication::command Communication::receiveRequest ()
+    {
+    // If new packet's size is correct
+    if (receivePacket (buffer) == PACK_SIZE_DEFAULT)
+        { 
+        return static_cast <command> (buffer [0]);
+        }
+    return command::nocmd;
+    }
+
+Communication::response Communication::receiveResponse ()
+    {
+    // If new packet's size is correct
+    if (receivePacket (buffer) == PACK_SIZE_DEFAULT)
+        {
+        return static_cast <response> (buffer [0]);
+        }
+    return response::noresp;
+    }
+
 uint8_t * Communication::argbuf ()
     {
     return (buffer + 1);
-    }
-
-Communication::Communication ()
-    {
     }

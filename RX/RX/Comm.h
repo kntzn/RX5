@@ -24,7 +24,7 @@
 #define EOP 0x00
 
 #define REQUEST_PERIOD 1000
-#define RESPONSE_TIMEOUT 50
+#define RESPONSE_TIMEOUT 100
 #define REQUEST_TIMEOUT 500
 #define RESPONSE_PACKETS 5
 
@@ -36,15 +36,30 @@ class Communication
         uint8_t buffer [PACK_SIZE_DEFAULT];
         
     public:
-        enum command
+        enum class command
             {
+            nocmd        =  0 ,
             throttle     = 'T',
             voltage      = 'V',
-            voltage_resp = 'v',
+        
             raw          = 'R'
+            };
+        
+        enum class response
+            {
+            noresp       =  0,
+            voltage      = 'v'
             };
 
         Communication ();        
+
+        void sendCommand (command cmd, uint16_t arg = 0);
+        void sendRequest (command req);
+
+        void sendResponse (response resp, uint16_t val = 0);
+
+        command receiveRequest ();
+        response receiveResponse ();
 
         void sendPacket (uint8_t* pack, size_t len);
         size_t receivePacket (uint8_t* pack);
@@ -53,7 +68,6 @@ class Communication
         uint8_t *argbuf ();
 
     };
-
 
 #endif
 

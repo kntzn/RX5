@@ -81,37 +81,45 @@ int main ()
         }
 
     Communication HC12;
-    uint8_t argbuf [PACK_SIZE_DEFAULT - 1] = { };
-
-
-
+    
     // Main cycle
     while (true)
         {
         // If packet available
-        if (HC12.receivePacket (argbuf) == 3)
+
+        Communication::command req;
+        if ((req = HC12.receiveRequest ()) != 
+            Communication::command::nocmd)
             {
-            if (argbuf [0] == 'T')
+            switch (req)
                 {
-                int thr = argbuf [1] * 256 + argbuf [2];
-                last_reading = map (1023 - thr, 0, 1023, 1000, 2000);
+                case Communication::command::nocmd:
+                    break;
+                case Communication::command::throttle:
+                    {
+                    uint16_t thr = HC12.argbuf ()[0] * 256 + 
+                                   HC12.argbuf ()[1];
+                    
+                    last_reading = map (thr, 0, 1023, PPM_MIN, PPM_MAX);
 
-                VESC.writeMicroseconds (last_reading);
+                    VESC.writeMicroseconds (last_reading);
 
-                last_avail = millis ();
+                    last_avail = millis ();
+
+                    break;
+                    }
+                case Communication::command::voltage:
+                    // Response
+                    HC12.sendResponse (Communication::response::voltage,
+                                       battety.getBatVoltage () * 1000);
+                    break;
+                case Communication::command::raw:
+                    break;
+                default:
+                    // Command discarded
+                    break;
                 }
-            if (argbuf [0] == 'V')
-                {
-                // Response
-                argbuf [0] = 'v';
-                argbuf [1] =
-                    constrain (battety.getBatVoltage () * 10,
-                               0,
-                               255);
-                
-                for (int i = 0; i < RESPONSE_PACKETS; i++)
-                    HC12.sendPacket (argbuf, PACK_SIZE_DEFAULT);
-                }
+
             }
 
 
