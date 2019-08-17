@@ -35,6 +35,8 @@ class Communication
         sarray <uint8_t, PACK_SIZE_MAX + 1> inputBuf;
         uint8_t buffer [PACK_SIZE_DEFAULT];
         
+        bool rawinput;
+
     public:
         enum class command
             {
@@ -64,6 +66,10 @@ class Communication
         void sendPacket (uint8_t* pack, size_t len);
         size_t receivePacket (uint8_t* pack);
 
+        void activateRawinput ();
+
+
+        bool rawinputActive ();
         // Returns ptr to the args. array
         uint8_t *argbuf ();
 

@@ -65,10 +65,8 @@ int main ()
     VESC.attach (PPM);
     VESC.writeMicroseconds (1500);
     unsigned long last_avail = millis ();
-    int last_reading = 511;
-    const int FAILSAFE_RAMP_UP = 2000;
-    const int FAILSAFE_MS = 500;
-
+    int last_reading = 1500;
+    
     Serial.begin (9600);
 
     // Beeps 6 times at startup
@@ -85,39 +83,62 @@ int main ()
     // Main cycle
     while (true)
         {
-        // If packet available
+        // If single-byte one-way communication is active
+        if (HC12.rawinputActive ())
+            { 
+            while (Serial.available ())
+                last_reading = 
+                    map (Serial.read (), 
+                         0,       255,
+                         PPM_MIN, PPM_MAX);
+            
+            VESC.writeMicroseconds (last_reading);
 
-        Communication::command req;
-        if ((req = HC12.receiveRequest ()) != 
-            Communication::command::nocmd)
-            {
-            switch (req)
+            last_avail = millis ();
+            }
+        // else using default two-way communication
+        else
+            { 
+            // If packet available
+            Communication::command req;
+            if ((req = HC12.receiveRequest ()) !=
+                Communication::command::nocmd)
                 {
-                case Communication::command::nocmd:
-                    break;
-                case Communication::command::throttle:
+                switch (req)
                     {
-                    uint16_t thr = HC12.argbuf ()[0] * 256 + 
-                                   HC12.argbuf ()[1];
-                    
-                    last_reading = map (thr, 0, 1023, PPM_MIN, PPM_MAX);
+                    case Communication::command::nocmd:
+                        break;
+                    case Communication::command::throttle:
+                        {
+                        uint16_t thr = HC12.argbuf () [0] * 256 +
+                            HC12.argbuf () [1];
 
-                    VESC.writeMicroseconds (last_reading);
+                        last_reading = map (thr, 0, 1023, PPM_MIN, PPM_MAX);
 
-                    last_avail = millis ();
+                        VESC.writeMicroseconds (last_reading);
 
-                    break;
+                        last_avail = millis ();
+
+                        break;
+                        }
+                    case Communication::command::voltage:
+                        // Response
+                        HC12.sendResponse (Communication::response::voltage,
+                                           battety.getBatVoltage () * 1000);
+                        break;
+                    case Communication::command::raw:
+                        // Activates rawinput communication mode
+                        if (HC12.argbuf ()[0] == 
+                            static_cast <char> (Communication::command::raw) &&
+                            HC12.argbuf () [1] ==
+                            static_cast <char> (Communication::command::raw))
+                                HC12.activateRawinput ();
+                        break;
+                    default:
+                        // Command discarded
+                        break;
                     }
-                case Communication::command::voltage:
-                    // Response
-                    HC12.sendResponse (Communication::response::voltage,
-                                       battety.getBatVoltage () * 1000);
-                    break;
-                case Communication::command::raw:
-                    break;
-                default:
-                    // Command discarded
-                    break;
+
                 }
 
             }

@@ -58,7 +58,13 @@ size_t Communication::receivePacket (uint8_t * pack)
     return cobsDecodedPackLen;
     }
 
-Communication::Communication ()
+void Communication::activateRawinput ()
+    {
+    rawinput = true;
+    }
+
+Communication::Communication ():
+    rawinput (false)
     {
     }
 
@@ -106,6 +112,11 @@ Communication::response Communication::receiveResponse ()
         return static_cast <response> (buffer [0]);
         }
     return response::noresp;
+    }
+
+bool Communication::rawinputActive ()
+    {
+    return rawinput;
     }
 
 uint8_t * Communication::argbuf ()
