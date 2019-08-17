@@ -50,16 +50,16 @@ void initialize ()
     }
 
 int main ()
-    { 
+    {
     initialize ();
 
     TM1637Display disp (DISPLAY_SCL, DISPLAY_SDA);
     disp.setBrightness (7);
-    
+
     Battery battety;
     battety.batMeasure (V_BAT);
     unsigned long last_bat_upd = millis ();
-    
+
 
     Servo VESC;
     VESC.attach (PPM);
@@ -67,13 +67,13 @@ int main ()
     unsigned long last_avail = millis ();
     int last_reading = 511;
     const int FAILSAFE_RAMP_UP = 2000;
-    const int FAILSAFE_MS      = 500;
+    const int FAILSAFE_MS = 500;
 
     Serial.begin (9600);
-    
+
     // Beeps 6 times at startup
     for (int i = 0; i < 6; i++)
-        { 
+        {
         digitalWrite (BUZZER, HIGH);
         delay (100);
         digitalWrite (BUZZER, LOW);
@@ -83,16 +83,16 @@ int main ()
     Communication HC12;
     uint8_t test_buf [PACK_SIZE_MAX + 1] = { };
 
-    
+
 
     // Main cycle
     while (true)
         {
         // If packet available
         if (HC12.receivePacket (test_buf) == 3)
-            { 
+            {
             if (test_buf [0] == 'T')
-                { 
+                {
                 int thr = test_buf [1] * 256 + test_buf [2];
                 last_reading = map (1023 - thr, 0, 1023, 1000, 2000);
 
@@ -100,20 +100,30 @@ int main ()
 
                 last_avail = millis ();
                 }
+            if (test_buf [0] == 'V')
+                {
+                // Response
+                test_buf [0] = 'v';
+                test_buf [1] =
+                    constrain (battety.getBatVoltage () * 10,
+                               0,
+                               255);
 
-            
+                for (int i = 0; i < 5; i++)
+                    HC12.sendPacket (test_buf, 3);
+                }
             }
 
 
         if (millis () - last_bat_upd > 500)
-            { 
+            {
             battety.batMeasure (V_BAT);
             disp.showNumberDec (int (battety.getBatVoltage () * 10.0) * 10);
             last_bat_upd += 500;
             }
 
         // Comm v.1
-        
+
         // Failsafe handler 
         // Also beeps for FAILSAFE_RAMP_UP ms when diconnects
         // TODO: move to a func.
@@ -138,7 +148,7 @@ int main ()
 
                 digitalWrite (BUZZER, LOW);
                 }
-            
+
             }
         else
             digitalWrite (BUZZER, LOW);
@@ -147,7 +157,7 @@ int main ()
         // Currently unused
         /*
         if (millis () - last_send > 50)
-            { 
+            {
             Serial.print (char ((testCommByte++) % 256));
             last_send = millis ();
             }*/

@@ -29,6 +29,14 @@ class Communication
 
         
     public:
+        enum command
+            {
+            throttle     = 'T',
+            voltage      = 'V',
+            voltage_resp = 'v',
+            raw          = 'R'
+            };
+
         Communication ();        
 
         void sendPacket (uint8_t* pack, size_t len);
