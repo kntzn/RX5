@@ -20,11 +20,8 @@ size_t Communication::receivePacket (uint8_t * pack)
     {
     // Reads the serial
     while (Serial.available ())
-        {
         inputBuf.push_back (Serial.read ());
         
-        }
-
     // Searches for the EOP symb.
     int eop = -1;
     for (int i = 0; i < inputBuf.size (); i++)
@@ -45,23 +42,25 @@ size_t Communication::receivePacket (uint8_t * pack)
     // Removes the message from the buffer
     if (eop != -1)
         {
-
         size_t initial_size = inputBuf.size ();
 
         uint8_t* data = inputBuf.data ();
 
+        // Buffer shift
         for (int i = 0; i < initial_size - eop - 1; i++)
-            { 
             data [i] = data [i + eop + 1];    
-            
-            }
-
+        
         for (int i = 0; i < eop + 1; i++)
             inputBuf.pop_back ();
 
         }
 
     return cobsDecodedPackLen;
+    }
+
+uint8_t * Communication::argbuf ()
+    {
+    return (buffer + 1);
     }
 
 Communication::Communication ()

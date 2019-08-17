@@ -81,7 +81,7 @@ int main ()
         }
 
     Communication HC12;
-    uint8_t test_buf [PACK_SIZE_MAX + 1] = { };
+    uint8_t argbuf [PACK_SIZE_DEFAULT - 1] = { };
 
 
 
@@ -89,28 +89,28 @@ int main ()
     while (true)
         {
         // If packet available
-        if (HC12.receivePacket (test_buf) == 3)
+        if (HC12.receivePacket (argbuf) == 3)
             {
-            if (test_buf [0] == 'T')
+            if (argbuf [0] == 'T')
                 {
-                int thr = test_buf [1] * 256 + test_buf [2];
+                int thr = argbuf [1] * 256 + argbuf [2];
                 last_reading = map (1023 - thr, 0, 1023, 1000, 2000);
 
                 VESC.writeMicroseconds (last_reading);
 
                 last_avail = millis ();
                 }
-            if (test_buf [0] == 'V')
+            if (argbuf [0] == 'V')
                 {
                 // Response
-                test_buf [0] = 'v';
-                test_buf [1] =
+                argbuf [0] = 'v';
+                argbuf [1] =
                     constrain (battety.getBatVoltage () * 10,
                                0,
                                255);
-
-                for (int i = 0; i < 5; i++)
-                    HC12.sendPacket (test_buf, 3);
+                
+                for (int i = 0; i < RESPONSE_PACKETS; i++)
+                    HC12.sendPacket (argbuf, PACK_SIZE_DEFAULT);
                 }
             }
 
@@ -121,8 +121,6 @@ int main ()
             disp.showNumberDec (int (battety.getBatVoltage () * 10.0) * 10);
             last_bat_upd += 500;
             }
-
-        // Comm v.1
 
         // Failsafe handler 
         // Also beeps for FAILSAFE_RAMP_UP ms when diconnects
@@ -152,14 +150,5 @@ int main ()
             }
         else
             digitalWrite (BUZZER, LOW);
-
-
-        // Currently unused
-        /*
-        if (millis () - last_send > 50)
-            {
-            Serial.print (char ((testCommByte++) % 256));
-            last_send = millis ();
-            }*/
         }
     }
