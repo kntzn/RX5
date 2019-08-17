@@ -65,7 +65,7 @@ int main ()
     VESC.attach (PPM);
     VESC.writeMicroseconds (1500);
     unsigned long last_avail = millis ();
-    byte last_reading = 127;
+    int last_reading = 511;
     const int FAILSAFE_RAMP_UP = 2000;
     const int FAILSAFE_MS      = 500;
 
@@ -88,16 +88,20 @@ int main ()
     // Main cycle
     while (true)
         {
-        size_t inp_sz = HC12.receivePacket (test_buf);
-        if (inp_sz)
+        // If packet available
+        if (HC12.receivePacket (test_buf) == 3)
             { 
-            for (int i = 0; i < inp_sz; i++)
-                {
-                Serial.print (int (test_buf [i]));
-                Serial.print (' ');
-                }
-            Serial.println ();
+            if (test_buf [0] == 'T')
+                { 
+                int thr = test_buf [1] * 256 + test_buf [2];
+                last_reading = map (1023 - thr, 0, 1023, 1000, 2000);
 
+                VESC.writeMicroseconds (last_reading);
+
+                last_avail = millis ();
+                }
+
+            
             }
 
 
@@ -109,18 +113,6 @@ int main ()
             }
 
         // Comm v.1
-        /*
-
-        // Waits for packets from TX
-        while (Serial.available ())
-            {
-            byte reading = Serial.read ();
-
-            VESC.writeMicroseconds (map (255 - reading, 0, 255, 1000, 2000));
-            last_reading = reading;
-            
-            last_avail = millis ();
-            }
         
         // Failsafe handler 
         // Also beeps for FAILSAFE_RAMP_UP ms when diconnects
@@ -134,7 +126,7 @@ int main ()
                 float k = float (delta) / float (FAILSAFE_RAMP_UP);
 
                 int toVESC = k * 1000 +
-                    (1.f - k) * (map (last_reading, 0, 255, 1000, 2000));
+                    (1.f - k) * (last_reading);
 
                 VESC.writeMicroseconds (toVESC);
 
@@ -150,7 +142,7 @@ int main ()
             }
         else
             digitalWrite (BUZZER, LOW);
-*/
+
 
         // Currently unused
         /*
