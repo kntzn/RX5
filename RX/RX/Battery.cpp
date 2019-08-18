@@ -34,6 +34,22 @@ long Battery::readVcc ()
     }
 
 
-Battery::Battery ()
+Battery::Battery (byte pin):
+    in_pin (pin),
+    bat_voltage (4.0)
+    {   
+    }
+
+void Battery::batMeasure ()
     {
+    int avr_inp = aver_analog (in_pin, 10U);
+
+    bat_voltage = (readVcc () * avr_inp / 1023 / 1000.0) * 0.06 +
+                       bat_voltage                      * (1.0 - 0.06);
+    }
+
+double Battery::getBatVoltage ()
+    {
+    // According to the volatge divider:
+    return bat_voltage / (4300.0 / 24300.0)*DIVIDER_K;
     }

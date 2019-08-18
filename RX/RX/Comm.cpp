@@ -63,6 +63,11 @@ void Communication::activateRawinput ()
     rawinput = true;
     }
 
+void Communication::flush ()
+    {
+    inputBuf.clear ();
+    }
+
 Communication::Communication ():
     rawinput (false)
     {

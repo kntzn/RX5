@@ -16,6 +16,8 @@ template <typename T, size_t len> class sarray
         bool push_back (T elem);
         bool pop_back ();
 
+        void clear ();
+
         T & operator[](const size_t idx);
 
         //T &operator[] (const size_t idx) const;
@@ -59,6 +61,12 @@ inline bool sarray<T, len>::pop_back ()
     count--;
 
     return true;
+    }
+
+template<typename T, size_t len>
+inline void sarray<T, len>::clear ()
+    {
+    count = 0;
     }
 
 template<typename T, size_t len>

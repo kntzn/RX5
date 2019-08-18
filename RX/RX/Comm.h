@@ -44,7 +44,8 @@ class Communication
             throttle     = 'T',
             voltage      = 'V',
         
-            raw          = 'R'
+            raw          = 'R',
+            raw_safety   = 'RR'
             };
         
         enum class response
@@ -67,6 +68,7 @@ class Communication
         size_t receivePacket (uint8_t* pack);
 
         void activateRawinput ();
+        void flush ();
 
 
         bool rawinputActive ();

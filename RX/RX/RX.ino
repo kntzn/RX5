@@ -56,8 +56,8 @@ int main ()
     TM1637Display disp (DISPLAY_SCL, DISPLAY_SDA);
     disp.setBrightness (7);
 
-    Battery battety;
-    battety.batMeasure (V_BAT);
+    Battery battety (V_BAT);
+    battety.batMeasure ();
     unsigned long last_bat_upd = millis ();
 
 
@@ -83,6 +83,7 @@ int main ()
     // Main cycle
     while (true)
         {
+        
         // If single-byte one-way communication is active
         if (HC12.rawinputActive ())
             { 
@@ -140,13 +141,11 @@ int main ()
                     }
 
                 }
-
             }
-
-
+        
         if (millis () - last_bat_upd > 500)
             {
-            battety.batMeasure (V_BAT);
+            battety.batMeasure ();
             disp.showNumberDec (int (battety.getBatVoltage () * 10.0) * 10);
             last_bat_upd += 500;
             }
