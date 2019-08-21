@@ -6,7 +6,7 @@
 
 #include "Comm.h"
 #include "Pinout.h"
-
+#include "SysConfig.h"
 
 #include <TM1637Display.h>
 #include "Battery.h"
@@ -49,6 +49,8 @@ void initialize ()
     pinMode (DISPLAY_SCL,  OUTPUT);
     }
 
+uint16_t convertToPPMvalue (uint16_t thr, uint16_t prev_thr, mode current_mode);
+
 int main ()
     {
     initialize ();
@@ -60,13 +62,14 @@ int main ()
     battety.batMeasure ();
     unsigned long last_bat_upd = millis ();
 
-
     Servo VESC;
     VESC.attach (PPM);
-    VESC.writeMicroseconds (1500);
+    VESC.writeMicroseconds (PPM_MID);
     unsigned long last_avail = millis ();
-    int last_reading = 1500;
-    
+
+    int last_reading = PPM_MID;
+    mode current_mode = mode::normal;
+
     Serial.begin (9600);
 
     // Beeps 6 times at startup
@@ -83,16 +86,14 @@ int main ()
     // Main cycle
     while (true)
         {
-        
         // If single-byte one-way communication is active
         if (HC12.rawinputActive ())
             { 
             while (Serial.available ())
-                last_reading = 
-                    map (Serial.read (), 
-                         0,       255,
-                         PPM_MIN, PPM_MAX);
-            
+                last_reading =
+                    convertToPPMvalue (static_cast <uint16_t> (Serial.read ()) * 4,
+                                       last_reading, mode::sport);
+                
             VESC.writeMicroseconds (last_reading);
 
             last_avail = millis ();
@@ -114,7 +115,7 @@ int main ()
                         uint16_t thr = HC12.argbuf () [0] * 256 +
                             HC12.argbuf () [1];
 
-                        last_reading = map (thr, 0, 1023, PPM_MIN, PPM_MAX);
+                        last_reading = convertToPPMvalue (thr, last_reading, current_mode);
 
                         VESC.writeMicroseconds (last_reading);
 
@@ -161,7 +162,7 @@ int main ()
                 {
                 float k = float (delta) / float (FAILSAFE_RAMP_UP);
 
-                int toVESC = k * 1000 +
+                int toVESC = k * PPM_MIN +
                     (1.f - k) * (last_reading);
 
                 VESC.writeMicroseconds (toVESC);
@@ -170,7 +171,7 @@ int main ()
                 }
             else
                 {
-                VESC.writeMicroseconds (1000);
+                VESC.writeMicroseconds (PPM_MIN);
 
                 digitalWrite (BUZZER, LOW);
                 }
@@ -179,4 +180,35 @@ int main ()
         else
             digitalWrite (BUZZER, LOW);
         }
+    }
+
+// param: thr          - new 10-bit throttle value
+// param: prev_thr     - previous 10-bit throttle value
+// param: current_mode - selected riding style    
+uint16_t convertToPPMvalue (uint16_t thr, uint16_t prev_thr, mode current_mode)
+    { 
+    // TODO: latency for slow modes
+
+    switch (current_mode)
+        {
+        case mode::lock:
+            return PPM_MIN;
+            break;
+        case mode::neutral:
+            return PPM_MID;
+            break;
+        case mode::eco:
+            return map (thr, 0, 1023, PPM_MIN_ECO, PPM_MAX_ECO);
+            break;
+        case mode::normal:
+            return map (thr, 0, 1023, PPM_MIN_NRM, PPM_MAX_NRM);
+            break;
+        case mode::sport:
+            return map (thr, 0, 1023, PPM_MIN_SPR, PPM_MAX_SPR);
+            break;
+        default:
+            break;
+        }
+
+    return PPM_MID;
     }

@@ -92,6 +92,7 @@
     <ClInclude Include="Config.h" />
     <ClInclude Include="Pinout.h" />
     <ClInclude Include="Sarray.h" />
+    <ClInclude Include="SysConfig.h" />
     <ClInclude Include="__vm\.RX.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
