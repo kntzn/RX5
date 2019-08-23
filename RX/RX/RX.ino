@@ -4,6 +4,9 @@
  Author:	kntzn
 */
 
+// TODO:
+// move last_avail var to the Comm. class
+
 #include "Comm.h"
 #include "Pinout.h"
 #include "SysConfig.h"
@@ -49,6 +52,7 @@ void initialize ()
     pinMode (DISPLAY_SCL,  OUTPUT);
     }
 
+// TODO: move to the class
 uint16_t convertToPPMvalue (uint16_t thr, uint16_t prev_thr, mode current_mode);
 
 int main ()
@@ -150,6 +154,7 @@ int main ()
                 }
             }
         
+        // Battery voltage update timer
         if (millis () - last_bat_upd > 500)
             {
             battety.batMeasure ();
@@ -159,41 +164,24 @@ int main ()
 
         // Failsafe handler 
         // Also beeps for FAILSAFE_RAMP_UP ms when diconnects
-        // TODO: move to a func.
-        if (millis () - last_avail > FAILSAFE_MS)
+        if (!failSafe (VESC, last_reading, last_avail))
             {
-            unsigned long delta = (millis () - last_avail) - FAILSAFE_MS;
-
-            if (delta < FAILSAFE_RAMP_UP)
-                {
-                float k = float (delta) / float (FAILSAFE_RAMP_UP);
-
-                int toVESC = k * PPM_MIN +
-                    (1.f - k) * (last_reading);
-
-                VESC.writeMicroseconds (toVESC);
-
-                digitalWrite (BUZZER, HIGH);
-                }
-            else
-                {
-                VESC.writeMicroseconds (PPM_MIN);
-
-                digitalWrite (BUZZER, LOW);
-                }
-
-            }
-        else
             digitalWrite (BUZZER, LOW);
+            VESC.writeMicroseconds (last_reading);
+            }
         }
     }
 
+// TO DO TO DO TODO TODO TODO TODO TODOOOOOO TODODODODO: move to the class
 // param: thr          - new 10-bit throttle value
 // param: prev_thr     - previous 10-bit throttle value
 // param: current_mode - selected riding style    
 uint16_t convertToPPMvalue (uint16_t thr, uint16_t prev_thr, mode current_mode)
     { 
     // TODO: latency for slow modes
+
+    // TODO: constant deadband
+    // TODO: strong brakes at moderate/fast modes
 
     switch (current_mode)
         {
@@ -217,4 +205,34 @@ uint16_t convertToPPMvalue (uint16_t thr, uint16_t prev_thr, mode current_mode)
         }
 
     return PPM_MID;
+    }
+
+// TODO: move to the class
+bool failSafe (Servo &VESC, uint16_t last_reading, unsigned long int last_avail)
+    { 
+    if (millis () - last_avail > FAILSAFE_MS)
+        {
+        unsigned long delta = (millis () - last_avail) - FAILSAFE_MS;
+
+        if (delta < FAILSAFE_RAMP_UP)
+            {
+            float k = float (delta) / float (FAILSAFE_RAMP_UP);
+
+            int toVESC = k * PPM_MIN +
+                (1.f - k) * (last_reading);
+
+            VESC.writeMicroseconds (toVESC);
+
+            digitalWrite (BUZZER, HIGH);
+            }
+        else
+            {
+            VESC.writeMicroseconds (PPM_MIN);
+
+            digitalWrite (BUZZER, LOW);
+            }
+
+        }
+
+    return (millis () - last_avail > FAILSAFE_MS);
     }

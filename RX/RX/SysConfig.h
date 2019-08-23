@@ -10,6 +10,9 @@ enum mode
     sport
     };
 
+
+#define VESC_DEADBAND 0.15
+
 // Modes config:
 
 // ECO

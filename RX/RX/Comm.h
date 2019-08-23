@@ -28,7 +28,6 @@
 #define REQUEST_TIMEOUT 500
 #define RESPONSE_PACKETS 5
 
-
 class Communication
     {
     private:
