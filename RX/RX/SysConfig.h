@@ -22,4 +22,4 @@ enum mode
 
 // SPORT
 #define PPM_MIN_SPR (PPM_MIN * 1.0 + PPM_MID * 0.0)
-#define PPM_MAX_SPR (PPM_MIN * 1.0 + PPM_MID * 0.0)
+#define PPM_MAX_SPR (PPM_MAX * 1.0 + PPM_MID * 0.0)

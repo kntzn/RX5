@@ -123,6 +123,12 @@ int main ()
 
                         break;
                         }
+                    case Communication::command::mode:
+                        {
+                        current_mode = static_cast <mode> (HC12.argbuf () [0]);
+
+                        break;
+                        }
                     case Communication::command::voltage:
                         // Response
                         HC12.sendResponse (Communication::response::voltage,

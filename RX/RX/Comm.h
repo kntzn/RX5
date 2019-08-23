@@ -43,7 +43,9 @@ class Communication
             nocmd        =  0 ,
             throttle     = 'T',
             voltage      = 'V',
-        
+            mode         = 'M',
+
+
             raw          = 'R',
             raw_safety   = 'RR'
             };
