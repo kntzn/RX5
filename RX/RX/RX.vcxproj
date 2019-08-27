@@ -90,6 +90,7 @@
     <ClInclude Include="cobs.h" />
     <ClInclude Include="Comm.h" />
     <ClInclude Include="Config.h" />
+    <ClInclude Include="HallSensor.h" />
     <ClInclude Include="Pinout.h" />
     <ClInclude Include="Sarray.h" />
     <ClInclude Include="SysConfig.h" />
@@ -98,6 +99,7 @@
   <ItemGroup>
     <ClCompile Include="Battery.cpp" />
     <ClCompile Include="Comm.cpp" />
+    <ClCompile Include="HallSensor.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

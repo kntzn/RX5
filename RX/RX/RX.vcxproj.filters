@@ -42,12 +42,18 @@
     <ClInclude Include="SysConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="HallSensor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Battery.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Comm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HallSensor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

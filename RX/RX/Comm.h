@@ -23,7 +23,7 @@
 #define PACK_SIZE_DEFAULT 3
 #define EOP 0x00
 
-#define REQUEST_PERIOD 1000
+#define REQUEST_PERIOD 500
 #define RESPONSE_TIMEOUT 100
 #define REQUEST_TIMEOUT 500
 #define RESPONSE_PACKETS 5
@@ -43,6 +43,7 @@ class Communication
             throttle     = 'T',
             voltage      = 'V',
             mode         = 'M',
+            speed        = 'S',
 
 
             raw          = 'R',
@@ -52,7 +53,8 @@ class Communication
         enum class response
             {
             noresp       =  0,
-            voltage      = 'v'
+            voltage      = 'v',
+            speed        = 's'
             };
 
         Communication ();        
