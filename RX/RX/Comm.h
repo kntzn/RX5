@@ -32,7 +32,7 @@ class Communication
     {
     private:
         sarray <uint8_t, PACK_SIZE_MAX + 1> inputBuf;
-        uint8_t buffer [PACK_SIZE_DEFAULT];
+        uint8_t buffer [PACK_SIZE_MAX];
         
         bool rawinput;
 

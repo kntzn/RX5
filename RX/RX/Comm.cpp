@@ -35,7 +35,7 @@ size_t Communication::receivePacket (uint8_t * pack)
     // Fix: prevents corrupted packets being decoded 
     //              out of range of the "pack" array
     size_t cobsDecodedPackLen = 0;
-    if (eop == PACK_SIZE_DEFAULT)
+    if (eop != PACK_SIZE_MAX + 1)
         {
         cobsDecodedPackLen =
             COBS::decode (inputBuf.data (), eop, pack);

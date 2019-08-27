@@ -59,6 +59,8 @@ int main ()
     {
     initialize ();
 
+
+
     TM1637Display disp (DISPLAY_SCL, DISPLAY_SDA);
     disp.setBrightness (7);
 
@@ -192,13 +194,13 @@ uint16_t convertToPPMvalue (uint16_t thr, uint16_t prev_thr, mode current_mode)
             return PPM_MID;
             break;
         case mode::eco:
-            return map (thr, 0, 1023, PPM_MIN_ECO, PPM_MAX_ECO);
+            return map (thr, 0, 1023, 1000, 2000);
             break;
         case mode::normal:
-            return map (thr, 0, 1023, PPM_MIN_NRM, PPM_MAX_NRM);
+            return map (thr, 0, 1023, 1000, 2000);
             break;
         case mode::sport:
-            return map (thr, 0, 1023, PPM_MIN_SPR, PPM_MAX_SPR);
+            return map (thr, 0, 1023, 1000, 2000);
             break;
         default:
             break;

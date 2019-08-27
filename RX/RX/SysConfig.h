@@ -16,13 +16,13 @@ enum mode
 // Modes config:
 
 // ECO
-#define PPM_MIN_ECO (PPM_MIN * 0.25 + PPM_MID * 0.75)
-#define PPM_MAX_ECO (PPM_MAX * 0.25 + PPM_MID * 0.75)
+#define BRAKE_MAX_ECO 0.25
+#define POWER_MAX_ECO 0.25
 
 // NORMAL
-#define PPM_MIN_NRM (PPM_MIN * 0.5 + PPM_MID * 0.5)
-#define PPM_MAX_NRM (PPM_MAX * 0.5 + PPM_MID * 0.5)
+#define BRAKE_MAX_NRM 0.5
+#define POWER_MAX_NRM 0.5
 
 // SPORT
-#define PPM_MIN_SPR (PPM_MIN * 1.0 + PPM_MID * 0.0)
-#define PPM_MAX_SPR (PPM_MAX * 1.0 + PPM_MID * 0.0)
+#define BRAKE_MAX_SPR 1.0
+#define POWER_MAX_SPR 1.0
