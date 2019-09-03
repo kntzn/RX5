@@ -9,24 +9,26 @@
 	#include "WProgram.h"
 #endif
 
+#include "SysConfig.h"
 
-class HallSensor
+double speed = 0.0;
+unsigned long int last_hs_sesnsed = millis ();
+
+void hsInterruptHandler ()
     {
-    private:
-        uint8_t int_id;
-        double dia;
+    speed = (WHEEL_DIA * M_PI) /
+        ((millis () - last_hs_sesnsed) / 1000.0) *
+        3.6;
 
-        double speed;
-        unsigned long int last_hs_sesnsed;
+    last_hs_sesnsed = millis ();
+    }
 
+double getSpeed ()
+    {
+    if (millis () - last_hs_sesnsed > 500)
+        return 0.0;
 
-    public:
-        HallSensor (double wheelDia);
-
-        void interruptHandler ();
-
-        double getSpeed ();
-    };
-
+    return speed;
+    }
 #endif
 

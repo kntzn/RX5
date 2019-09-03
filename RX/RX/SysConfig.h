@@ -13,6 +13,10 @@ enum mode
 
 #define VESC_DEADBAND 0.15
 
+// HW cfg:
+
+#define WHEEL_DIA 0.083
+
 // Modes config:
 
 // ECO

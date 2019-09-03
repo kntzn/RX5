@@ -18,11 +18,6 @@
 #include "Battery.h"
 #include <Servo.h>
 
-void beeperHall ()
-    {
-    Serial.println ("Hall");
-    }
-
 void initialize ()
     { 
     // inits the uC
@@ -58,8 +53,6 @@ void initialize ()
     // Display 
     pinMode (DISPLAY_SDA,  OUTPUT);
     pinMode (DISPLAY_SCL,  OUTPUT);
-
-    attachInterrupt (1, beeperHall, FALLING);
     }
 
 // TODO: move to the class
@@ -69,8 +62,7 @@ int main ()
     {
     initialize ();
 
-    HallSensor hs (0.083);
-    attachInterrupt (1, hs.interruptHandler, FALLING);
+    attachInterrupt (1, hsInterruptHandler, FALLING);
 
     TM1637Display disp (DISPLAY_SCL, DISPLAY_SDA);
     disp.setBrightness (7);
@@ -154,7 +146,7 @@ int main ()
                     case Communication::command::speed:
                         // Response
                         HC12.sendResponse (Communication::response::speed,
-                                           hs.getSpeed () * 1000);
+                                           getSpeed () * 1000);
                         break;
 
                     case Communication::command::raw:
